@@ -205,39 +205,51 @@ if (isset($_POST['update_user'])) {
 // ============================================
 if (isset($_POST['delete_id'])) {
   $delete_id = intval($_POST['delete_id']);
-
-  // Ambil nama file foto yang akan dihapus
-  $query = $conn->prepare("SELECT photo FROM addusers WHERE login_id = ?");
-  $query->bind_param("i", $delete_id);
-  $query->execute();
-  $result = $query->get_result();
   $photo = '';
-  if ($row = $result->fetch_assoc()) {
-    $photo = $row['photo'];
+
+  // Ambil nama file foto dari database
+  $query = $conn->prepare("SELECT photo FROM addusers WHERE login_id = ?");
+  if ($query) {
+    $query->bind_param("i", $delete_id);
+    $query->execute();
+    $result = $query->get_result();
+    if ($row = $result->fetch_assoc()) {
+      $photo = $row['photo'];
+    }
+    $query->close();
   }
-  $query->close();
 
-  // Hapus user dari database
+  // Hapus data user dari database
   $stmt = $conn->prepare("DELETE FROM addusers WHERE login_id = ?");
-  $stmt->bind_param("i", $delete_id);
+  if ($stmt) {
+    $stmt->bind_param("i", $delete_id);
 
-  if ($stmt->execute()) {
-    // Jika file foto ada, hapus dari folder uploads/
-    if (!empty($photo)) {
-      $photoPath = 'uploads/' . $photo;
-      if (file_exists($photoPath)) {
-        unlink($photoPath);
+    if ($stmt->execute()) {
+      // Hapus foto
+      if (!empty($photo)) {
+        $photoPath = __DIR__ . '/uploads/' . $photo;
+        if (file_exists($photoPath)) {
+          unlink($photoPath);
+        }
       }
+
+      header("Location: userlist.php?status=delete_success");
+    } else {
+      // Logging error jika query gagal
+      error_log("Gagal menghapus user ID $delete_id: " . $stmt->error);
+      header("Location: userlist.php?status=delete_error");
     }
 
-    header("Location: userlist.php?status=delete_success");
+    $stmt->close();
   } else {
+    // Logging jika prepare gagal
+    error_log("Gagal mempersiapkan query DELETE: " . $conn->error);
     header("Location: userlist.php?status=delete_error");
   }
 
-  $stmt->close();
   exit;
 }
+
 
 // ============================================
 // FUNCTION: SEARCH USERS

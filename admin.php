@@ -75,7 +75,7 @@
                     <i class="fas fa-chevron-down chevron" aria-hidden="true"></i>
                 </div>
                 <nav class="dropdown-content" id="dropdown-menu" role="menu" aria-label="User menu options">
-                    <a href="#" role="menuitem" tabindex="-1">Profile</a>
+                    <a href="profileadmin.php" role="menuitem" tabindex="-1">Profile</a>
                     <a href="#" role="menuitem" tabindex="-1">Premium</a>
                     <a href="http://localhost/pw2025_tubes_243040034/index.php#" role="menuitem" tabindex="-1">Logout</a>
                 </nav>
